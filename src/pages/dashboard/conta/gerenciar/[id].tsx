@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { Box, Typography, Chip, TextField, Button, Autocomplete, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Container } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
 
 // Dados mocados de produtos disponíveis
 const produtosDisponiveis = [
@@ -55,8 +56,9 @@ const contasMock = [
 ];
 
 export default function GerenciarContaPage() {
-  const params = useParams();
-  const id = Number(params.id);
+  const router = useRouter();
+  const idParam = router.query.id;
+  const id = Number(Array.isArray(idParam) ? idParam[0] : idParam);
   let conta = contasMock.find((c) => c.id === id);
   if (!conta && typeof window !== 'undefined') {
     try {
@@ -133,86 +135,117 @@ export default function GerenciarContaPage() {
   };
 
   return (
-    <Box component={Container} maxWidth="lg" sx={{ mt: 4 }}>
-      {/* Seção resumo da conta */}
-      <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
-        <Typography variant="h6">Resumo da Conta</Typography>
-        <Typography><b>Cliente:</b> {conta.name}</Typography>
-        <Typography><b>Valor devido:</b> <b>R$ {conta.valueDebit.toFixed(2)}</b></Typography>
-        <Typography><b>Status:</b> <Chip label={conta.payed ? 'Paga' : 'Aberta'} color={conta.payed ? 'success' : 'warning'} size="small" /></Typography>
-        <Typography><b>Data de abertura:</b> {new Date(conta.createAT).toLocaleDateString('pt-BR')}</Typography>
-      </Box>
-
-      {/* Seção de adição de produtos */}
-      <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
-        <Typography variant="subtitle1" gutterBottom>Adicionar produto à conta</Typography>
-        {formItens.map((form, idx) => (
-          <Box key={idx} sx={{ display: 'flex', gap: 2, mb: 2 }}>
-            <Box sx={{ flex: '0 0 75%' }}>
-              <Autocomplete
-                disablePortal
-                options={produtosDisponiveis}
-                value={produtosDisponiveis.find((p) => p.value === form.produto) || null}
-                onChange={(_, newValue) => {
-                  const arr = [...formItens];
-                  arr[idx].produto = newValue ? newValue.value : null;
-                  setFormItens(arr);
-                }}
-                renderInput={(params) => <TextField {...params} label="Produto" fullWidth />}
-              />
-            </Box>
-            <Box sx={{ flex: '0 0 25%' }}>
-              <TextField
-                label="Quantidade"
-                type="number"
-                value={form.quantidade}
-                onChange={(e) => {
-                  const arr = [...formItens];
-                  arr[idx].quantidade = Number(e.target.value);
-                  setFormItens(arr);
-                }}
-                inputProps={{ min: 1 }}
-                fullWidth
-              />
-            </Box>
-            {formItens.length > 1 && (
-              <IconButton color="error" onClick={() => handleRemoveFormItem(idx)} sx={{ mt: 0.5 }}>
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </Box>
-        ))}
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" color="primary" onClick={handleAddFormItem} sx={{ minWidth: 48 }}>+
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleAdicionarNovoItem}>
-            Adicionar produto
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Lista temporária de novos itens a serem adicionados */}
-      {novosItens.length > 0 && (
+    <DashboardLayout>
+      <Box component={Container} maxWidth="lg" sx={{ mt: 4 }}>
         <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
-          <Typography variant="subtitle2" gutterBottom>Itens a adicionar</Typography>
-          <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Typography variant="h6">Resumo da Conta</Typography>
+          <Typography><b>Cliente:</b> {conta.name}</Typography>
+          <Typography><b>Valor devido:</b> <b>R$ {conta.valueDebit.toFixed(2)}</b></Typography>
+          <Typography><b>Status:</b> <Chip label={conta.payed ? 'Paga' : 'Aberta'} color={conta.payed ? 'success' : 'warning'} size="small" /></Typography>
+          <Typography><b>Data de abertura:</b> {new Date(conta.createAT).toLocaleDateString('pt-BR')}</Typography>
+        </Box>
+        <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
+          <Typography variant="subtitle1" gutterBottom>Adicionar produto à conta</Typography>
+          {formItens.map((form, idx) => (
+            <Box key={idx} sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <Box sx={{ flex: '0 0 75%' }}>
+                <Autocomplete
+                  disablePortal
+                  options={produtosDisponiveis}
+                  value={produtosDisponiveis.find((p) => p.value === form.produto) || null}
+                  onChange={(_, newValue) => {
+                    const arr = [...formItens];
+                    arr[idx].produto = newValue ? newValue.value : null;
+                    setFormItens(arr);
+                  }}
+                  renderInput={(params) => <TextField {...params} label="Produto" fullWidth />}
+                />
+              </Box>
+              <Box sx={{ flex: '0 0 25%' }}>
+                <TextField
+                  label="Quantidade"
+                  type="number"
+                  value={form.quantidade}
+                  onChange={(e) => {
+                    const arr = [...formItens];
+                    arr[idx].quantidade = Number(e.target.value);
+                    setFormItens(arr);
+                  }}
+                  inputProps={{ min: 1 }}
+                  fullWidth
+                />
+              </Box>
+              {formItens.length > 1 && (
+                <IconButton color="error" onClick={() => handleRemoveFormItem(idx)} sx={{ mt: 0.5 }}>
+                  <DeleteIcon />
+                </IconButton>
+              )}
+            </Box>
+          ))}
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button variant="outlined" color="primary" onClick={handleAddFormItem} sx={{ minWidth: 48 }}>+
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleAdicionarNovoItem}>
+              Adicionar produto
+            </Button>
+          </Box>
+        </Box>
+        {novosItens.length > 0 && (
+          <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
+            <Typography variant="subtitle2" gutterBottom>Itens a adicionar</Typography>
+            <TableContainer component={Paper} sx={{ mb: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Item</TableCell>
+                    <TableCell>Quantidade</TableCell>
+                    <TableCell>Valor (R$)</TableCell>
+                    <TableCell>Remover</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {novosItens.map((item, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>{item.item}</TableCell>
+                      <TableCell>{item.quantidade}</TableCell>
+                      <TableCell>{item.valor.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <IconButton color="error" onClick={() => handleRemoverNovoItem(idx)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Button variant="contained" color="success" onClick={handleSalvarTodos}>
+              Salvar todos na conta
+            </Button>
+          </Box>
+        )}
+        <Box>
+          <Typography variant="subtitle1" gutterBottom>Itens da Conta</Typography>
+          <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell>Item</TableCell>
                   <TableCell>Quantidade</TableCell>
+                  <TableCell>Data de Adição</TableCell>
                   <TableCell>Valor (R$)</TableCell>
-                  <TableCell>Remover</TableCell>
+                  <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {novosItens.map((item, idx) => (
+                {itens.map((item, idx) => (
                   <TableRow key={idx}>
                     <TableCell>{item.item}</TableCell>
                     <TableCell>{item.quantidade}</TableCell>
+                    <TableCell>{new Date(item.data).toLocaleDateString('pt-BR')}</TableCell>
                     <TableCell>{item.valor.toFixed(2)}</TableCell>
                     <TableCell>
-                      <IconButton color="error" onClick={() => handleRemoverNovoItem(idx)}>
+                      <IconButton color="error" onClick={() => handleExcluirItem(idx)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -221,44 +254,8 @@ export default function GerenciarContaPage() {
               </TableBody>
             </Table>
           </TableContainer>
-          <Button variant="contained" color="success" onClick={handleSalvarTodos}>
-            Salvar todos na conta
-          </Button>
         </Box>
-      )}
-
-      {/* Tabela de itens da conta */}
-      <Box>
-        <Typography variant="subtitle1" gutterBottom>Itens da Conta</Typography>
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Quantidade</TableCell>
-                <TableCell>Data de Adição</TableCell>
-                <TableCell>Valor (R$)</TableCell>
-                <TableCell>Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {itens.map((item, idx) => (
-                <TableRow key={idx}>
-                  <TableCell>{item.item}</TableCell>
-                  <TableCell>{item.quantidade}</TableCell>
-                  <TableCell>{new Date(item.data).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell>{item.valor.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <IconButton color="error" onClick={() => handleExcluirItem(idx)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
       </Box>
-    </Box>
+    </DashboardLayout>
   );
 }

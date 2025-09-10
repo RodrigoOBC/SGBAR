@@ -15,7 +15,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PeopleIcon from '@mui/icons-material/People';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 const drawerWidth = 240;
 

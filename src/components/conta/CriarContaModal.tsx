@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button, Autocomplete } from '@mui/material';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 interface CriarContaModalProps {
   open: boolean;

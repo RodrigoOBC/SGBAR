@@ -2,8 +2,9 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Chip, Box, Button } from '@mui/material';
-import ContaDetalheModal from './ContaDetalheModal';
-import CriarContaModal from './CriarContaModal';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import ContaDetalheModal from '@/components/conta/ContaDetalheModal';
+import CriarContaModal from '@/components/conta/CriarContaModal';
 
 interface ItemDetalhe {
   item: string;
@@ -103,45 +104,47 @@ export default function ContaPage() {
   };
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h4" gutterBottom sx={{ m: 0 }}>
-          Contas dos Clientes
-        </Typography>
-        <Button variant="contained" color="primary" onClick={() => setCriarOpen(true)}>Criar conta</Button>
+    <DashboardLayout>
+      <Box>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4" gutterBottom sx={{ m: 0 }}>
+            Contas dos Clientes
+          </Typography>
+          <Button variant="contained" color="primary" onClick={() => setCriarOpen(true)}>Criar conta</Button>
+        </Box>
+        <Box display="flex" flexWrap="wrap" gap={3}>
+          {contas.map((conta) => (
+            <Box key={conta.id} flex="1 1 300px" minWidth={280} maxWidth={400}>
+              <Card
+                sx={{ cursor: 'pointer', background: conta.payed ? '#e8f5e9' : '#fffde7' }}
+                onClick={() => handleOpenModal(conta)}
+                elevation={3}
+              >
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {conta.name}
+                  </Typography>
+                  <Typography variant="body1">
+                    Valor devido: <b>R$ {conta.valueDebit.toFixed(2)}</b>
+                  </Typography>
+                  <Typography variant="body2">
+                    Data de abertura: {new Date(conta.createAT).toLocaleDateString('pt-BR')}
+                  </Typography>
+                  <Box mt={1}>
+                    <Chip
+                      label={conta.payed ? 'Paga' : 'Aberta'}
+                      color={conta.payed ? 'success' : 'warning'}
+                      size="small"
+                    />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+          ))}
+        </Box>
+        <ContaDetalheModal open={modalOpen} onClose={handleCloseModal} conta={contaSelecionada} />
+        <CriarContaModal open={criarOpen} onClose={handleCloseCriar} />
       </Box>
-      <Box display="flex" flexWrap="wrap" gap={3}>
-        {contas.map((conta) => (
-          <Box key={conta.id} flex="1 1 300px" minWidth={280} maxWidth={400}>
-            <Card
-              sx={{ cursor: 'pointer', background: conta.payed ? '#e8f5e9' : '#fffde7' }}
-              onClick={() => handleOpenModal(conta)}
-              elevation={3}
-            >
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {conta.name}
-                </Typography>
-                <Typography variant="body1">
-                  Valor devido: <b>R$ {conta.valueDebit.toFixed(2)}</b>
-                </Typography>
-                <Typography variant="body2">
-                  Data de abertura: {new Date(conta.createAT).toLocaleDateString('pt-BR')}
-                </Typography>
-                <Box mt={1}>
-                  <Chip
-                    label={conta.payed ? 'Paga' : 'Aberta'}
-                    color={conta.payed ? 'success' : 'warning'}
-                    size="small"
-                  />
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-        ))}
-      </Box>
-      <ContaDetalheModal open={modalOpen} onClose={handleCloseModal} conta={contaSelecionada} />
-      <CriarContaModal open={criarOpen} onClose={handleCloseCriar} />
-    </Box>
+    </DashboardLayout>
   );
 }

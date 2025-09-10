@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Modal, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Button } from '@mui/material';
-import { useRouter } from 'next/navigation';
 
 interface ItemDetalhe {
   item: string;
