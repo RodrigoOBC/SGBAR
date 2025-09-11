@@ -14,7 +14,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+   width: 700, // aumentado para comportar tabela
   bgcolor: 'background.paper',
   border: '2px solid #1976d2',
   boxShadow: 24,
@@ -40,20 +40,22 @@ export default function ContaDetalheModal({ open, onClose, conta }: ContaDetalhe
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow>
-                  <TableCell>Produto</TableCell>
-                  <TableCell>Quantidade</TableCell>
-                  <TableCell>Adicionado em</TableCell>
-                </TableRow>
+                 <TableRow>
+                   <TableCell>Produto</TableCell>
+                   <TableCell>Quantidade</TableCell>
+                   <TableCell>Adicionado em</TableCell>
+                   <TableCell>Subtotal (R$)</TableCell>
+                 </TableRow>
               </TableHead>
               <TableBody>
-                {conta.items.map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{item.product_name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{item.add_at ? new Date(item.add_at).toLocaleString('pt-BR') : '-'}</TableCell>
-                  </TableRow>
-                ))}
+                 {conta.items.map((item, idx) => (
+                   <TableRow key={idx}>
+                     <TableCell>{item.product_name}</TableCell>
+                     <TableCell>{item.quantity}</TableCell>
+                     <TableCell>{item.add_at ? new Date(item.add_at).toLocaleString('pt-BR') : '-'}</TableCell>
+                     <TableCell>{item.subtotal?.toFixed(2)}</TableCell>
+                   </TableRow>
+                 ))}
               </TableBody>
             </Table>
           </TableContainer>

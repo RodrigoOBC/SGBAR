@@ -71,26 +71,28 @@ export default function GerenciarContaPage() {
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
-                <TableRow>
-                  <TableCell>Item</TableCell>
-                  <TableCell>Quantidade</TableCell>
-                  <TableCell>Data de Adição</TableCell>
-                  <TableCell>Ações</TableCell>
-                </TableRow>
+                 <TableRow>
+                   <TableCell>Item</TableCell>
+                   <TableCell>Quantidade</TableCell>
+                   <TableCell>Data de Adição</TableCell>
+                   <TableCell>Subtotal (R$)</TableCell>
+                   <TableCell>Ações</TableCell>
+                 </TableRow>
               </TableHead>
               <TableBody>
-                {conta.items.map((item) => (
-                  <TableRow key={item.item_id}>
-                    <TableCell>{item.product_name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{item.add_at ? new Date(item.add_at).toLocaleDateString('pt-BR') : '-'}</TableCell>
-                    <TableCell>
-                      <IconButton color="error" disabled>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                 {conta.items.map((item) => (
+                   <TableRow key={item.item_id}>
+                     <TableCell>{item.product_name}</TableCell>
+                     <TableCell>{item.quantity}</TableCell>
+                     <TableCell>{item.add_at ? new Date(item.add_at).toLocaleDateString('pt-BR') : '-'}</TableCell>
+                     <TableCell>{item.subtotal?.toFixed(2)}</TableCell>
+                     <TableCell>
+                       <IconButton color="error" disabled>
+                         <DeleteIcon />
+                       </IconButton>
+                     </TableCell>
+                   </TableRow>
+                 ))}
               </TableBody>
             </Table>
           </TableContainer>

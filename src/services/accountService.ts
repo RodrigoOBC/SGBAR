@@ -16,6 +16,7 @@ function mapApiToContaCliente(apiData: any): ContaCliente {
       product_id: item.product_id,
       product_name: item.product_name,
       quantity: item.quantity,
+      subtotal: item.subtotal,
       add_at: item.add_at,
     })),
   };
@@ -35,6 +36,19 @@ export async function getAccountById(id: number): Promise<ContaCliente> {
   const response = await fetch(`${API_URL}/accounts/${id}`);
   if (!response.ok) {
     throw new Error("Erro ao buscar conta");
+  }
+  const data = await response.json();
+  return mapApiToContaCliente(data);
+}
+
+export async function createAccount(customerId: number, tableNumber: string): Promise<ContaCliente> {
+  const response = await fetch(`${API_URL}/accounts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customer_id: customerId, table_number: tableNumber }),
+  });
+  if (!response.ok) {
+    throw new Error('Erro ao criar conta');
   }
   const data = await response.json();
   return mapApiToContaCliente(data);

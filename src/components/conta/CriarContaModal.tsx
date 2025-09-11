@@ -3,10 +3,16 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button, Autocomplete } from '@mui/material';
 import { useRouter } from 'next/router';
+import { getAllClients, createClient } from '@/services/clientService';
+import { createAccount } from '@/services/accountService';
+import { Cliente } from '@/types/Client';
+
+import { ContaCliente } from '@/types/Conta';
 
 interface CriarContaModalProps {
   open: boolean;
   onClose: () => void;
+  onContaCriada?: (conta: ContaCliente) => void;
 }
 
 interface ContaNova {
@@ -33,56 +39,62 @@ const style = {
   p: 4,
 };
 
-export default function CriarContaModal({ open, onClose }: CriarContaModalProps) {
+export default function CriarContaModal({ open, onClose, onContaCriada }: CriarContaModalProps) {
   const router = useRouter();
-  const [clientes, setClientes] = useState<string[]>([]);
-  const [clienteInput, setClienteInput] = useState('');
-  const [clienteSelecionado, setClienteSelecionado] = useState<string | null>(null);
-  const [mesa, setMesa] = useState('');
+   const [clientes, setClientes] = useState<Cliente[]>([]);
+   const [clienteInput, setClienteInput] = useState('');
+   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | string | null>(null);
+   const [mesa, setMesa] = useState('');
+   const [loading, setLoading] = useState(false);
 
-  // Carrega clientes mockados + localStorage
-  useEffect(() => {
-    const base = ['João Silva', 'Maria Oliveira', 'Carlos Souza'];
-    const armazenados = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('clientesExtra') || '[]') : [];
-    const full = Array.from(new Set([...base, ...armazenados]));
-    setClientes(full);
-  }, [open]);
 
-  const handleSalvar = () => {
-    const nomeFinal = (clienteSelecionado || clienteInput || '').trim();
-    if (!nomeFinal) return;
+   // Carrega clientes da API
+   useEffect(() => {
+     if (open) {
+       getAllClients()
+         .then(setClientes)
+         .catch(() => setClientes([]));
+     }
+   }, [open]);
 
-    // Se for novo cliente, armazena para persistir futuramente
-    if (!clientes.includes(nomeFinal)) {
-      const extras = JSON.parse(localStorage.getItem('clientesExtra') || '[]');
-      extras.push(nomeFinal);
-      localStorage.setItem('clientesExtra', JSON.stringify(extras));
-    }
+   const handleSalvar = async () => {
+     setLoading(true);
+     let nomeFinal = '';
+     let clienteId: number | null = null;
+     let telefone = '';
+     if (typeof clienteSelecionado === 'string') {
+       nomeFinal = clienteSelecionado.trim();
+     } else if (clienteSelecionado && typeof clienteSelecionado === 'object') {
+       nomeFinal = clienteSelecionado.name;
+       clienteId = clienteSelecionado.id;
+       telefone = clienteSelecionado.telefone;
+     } else {
+       nomeFinal = clienteInput.trim();
+     }
+     if (!nomeFinal) {
+       setLoading(false);
+       return;
+     }
 
-    const mesaFinal = mesa.trim() === '' ? 'Balcão' : mesa.trim();
-
-    // Mock criação da conta
-    const contasExistentes: ContaNova[] = JSON.parse(localStorage.getItem('contasDinamicas') || '[]');
-    const novoId = contasExistentes.length > 0 ? Math.max(...contasExistentes.map(c => c.id)) + 1 : 100; // começa em 100 para não conflitar
-
-    const novaConta: ContaNova = {
-      id: novoId,
-      name: nomeFinal + (mesaFinal ? ` - Mesa ${mesaFinal}` : ''),
-      status: 'aberta',
-      valueDebit: 0,
-      payed: false,
-      createAT: new Date().toISOString(),
-      closeAT: null,
-      items: [],
-      mesa: mesaFinal,
-    };
-
-    localStorage.setItem('contasDinamicas', JSON.stringify([...contasExistentes, novaConta]));
-
-    // Redireciona para a página de gerenciamento
-    onClose();
-    router.push(`/dashboard/conta/gerenciar/${novoId}`);
-  };
+     try {
+       // Se não temos clienteId, criamos o cliente
+       if (!clienteId) {
+         // Para simplificar, telefone vazio
+         const novoCliente = await createClient(nomeFinal, telefone);
+         clienteId = novoCliente.id;
+       }
+       const mesaFinal = mesa.trim() === '' ? 'Balcão' : mesa.trim();
+       const novaConta = await createAccount(clienteId, mesaFinal);
+       setLoading(false);
+       onClose();
+       if (typeof onContaCriada === 'function') {
+         onContaCriada(novaConta);
+       }
+     } catch (e) {
+       setLoading(false);
+       alert('Erro ao criar conta ou cliente.');
+     }
+   };
 
   const handleClose = () => {
     setClienteInput('');
@@ -97,16 +109,21 @@ export default function CriarContaModal({ open, onClose }: CriarContaModalProps)
         <Typography id="modal-criar-conta-title" variant="h6" gutterBottom>
           Criar nova conta
         </Typography>
-        <Autocomplete
-          freeSolo
-          options={clientes}
-            value={clienteSelecionado}
-            onChange={(_, newValue) => setClienteSelecionado(newValue)}
-            inputValue={clienteInput}
-            onInputChange={(_, newInput) => setClienteInput(newInput)}
-            renderInput={(params) => <TextField {...params} label="Cliente" placeholder="Digite ou selecione" fullWidth />}
-            sx={{ mb: 2 }}
-        />
+         <Autocomplete
+           freeSolo
+           options={clientes}
+           getOptionLabel={(option) => typeof option === 'string' ? option : option.name}
+           isOptionEqualToValue={(option, value) => {
+             if (typeof option === 'string' || typeof value === 'string') return option === value;
+             return option.id === value.id;
+           }}
+           value={clienteSelecionado}
+           onChange={(_, newValue) => setClienteSelecionado(newValue)}
+           inputValue={clienteInput}
+           onInputChange={(_, newInput) => setClienteInput(newInput)}
+           renderInput={(params) => <TextField {...params} label="Cliente" placeholder="Digite ou selecione" fullWidth />}
+           sx={{ mb: 2 }}
+         />
         <TextField
           label="Mesa (opcional)"
           value={mesa}
@@ -116,9 +133,9 @@ export default function CriarContaModal({ open, onClose }: CriarContaModalProps)
         />
         <Box display="flex" justifyContent="space-between">
           <Button onClick={handleClose} variant="outlined" color="primary">Cancelar</Button>
-          <Button onClick={handleSalvar} variant="contained" color="primary" disabled={!clienteSelecionado && !clienteInput}>
-            Criar conta
-          </Button>
+           <Button onClick={handleSalvar} variant="contained" color="primary" disabled={loading || (!clienteSelecionado && !clienteInput)}>
+             {loading ? 'Criando...' : 'Criar conta'}
+           </Button>
         </Box>
       </Box>
     </Modal>

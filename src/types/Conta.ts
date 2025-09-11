@@ -3,6 +3,7 @@ export interface ItemDetalhe {
   product_id: number;
   product_name: string;
   quantity: number;
+  subtotal: number;
   add_at: string | null;
 }
 

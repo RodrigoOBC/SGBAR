@@ -22,7 +22,8 @@ export default function ContaPage() {
     setError(null);
     try {
       const data = await getAllAccounts();
-      setContas(data);
+      let opendAccount = data.filter((account) => account.payed === false);
+      setContas(opendAccount);
     } catch (e: any) {
       setError(e.message || 'Erro ao buscar contas');
     } finally {
