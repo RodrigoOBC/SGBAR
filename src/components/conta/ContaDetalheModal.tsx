@@ -1,23 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Modal, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Button } from '@mui/material';
-
-interface ItemDetalhe {
-  item: string;
-  quantidade: number;
-  valor: number;
-}
-
-interface ContaCliente {
-  id: number;
-  name: string;
-  status: string;
-  valueDebit: number;
-  payed: boolean;
-  createAT: string;
-  closeAT: string | null;
-  items: ItemDetalhe[];
-}
+import { ContaCliente } from '@/types/Conta';
 
 interface ContaDetalheModalProps {
   open: boolean;
@@ -49,7 +33,7 @@ export default function ContaDetalheModal({ open, onClose, conta }: ContaDetalhe
         <Typography variant="subtitle1"><b>Cliente:</b> {conta.name}</Typography>
         <Typography variant="subtitle1"><b>Valor devido:</b> <span style={{fontWeight: 'bold'}}>R$ {conta.valueDebit.toFixed(2)}</span></Typography>
         <Typography variant="subtitle1"><b>Status:</b> <Chip label={conta.payed ? 'Paga' : 'Aberta'} color={conta.payed ? 'success' : 'warning'} size="small" /></Typography>
-        <Typography variant="subtitle1"><b>Data de abertura:</b> {new Date(conta.createAT).toLocaleDateString('pt-BR')}</Typography>
+        <Typography variant="subtitle1"><b>Data de abertura:</b> {conta.createAT ? new Date(conta.createAT).toLocaleDateString('pt-BR') : '-'}</Typography>
         {conta.closeAT && <Typography variant="subtitle1"><b>Data de fechamento:</b> {new Date(conta.closeAT).toLocaleDateString('pt-BR')}</Typography>}
         <Box mt={2}>
           <Typography variant="subtitle2" gutterBottom>Itens detalhados:</Typography>
@@ -57,17 +41,17 @@ export default function ContaDetalheModal({ open, onClose, conta }: ContaDetalhe
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Item</TableCell>
+                  <TableCell>Produto</TableCell>
                   <TableCell>Quantidade</TableCell>
-                  <TableCell>Valor (R$)</TableCell>
+                  <TableCell>Adicionado em</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {conta.items.map((item, idx) => (
                   <TableRow key={idx}>
-                    <TableCell>{item.item}</TableCell>
-                    <TableCell>{item.quantidade}</TableCell>
-                    <TableCell>{item.valor.toFixed(2)}</TableCell>
+                    <TableCell>{item.product_name}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{item.add_at ? new Date(item.add_at).toLocaleString('pt-BR') : '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
