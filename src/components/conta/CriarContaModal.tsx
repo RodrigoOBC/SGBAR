@@ -83,7 +83,7 @@ export default function CriarContaModal({ open, onClose, onContaCriada }: CriarC
          const novoCliente = await createClient(nomeFinal, telefone);
          clienteId = novoCliente.id;
        }
-       const mesaFinal = mesa.trim() === '' ? 'Balcão' : mesa.trim();
+       const mesaFinal = mesa.trim() === '' ? '0' : mesa.trim();
        const novaConta = await createAccount(clienteId, mesaFinal);
        setLoading(false);
        onClose();

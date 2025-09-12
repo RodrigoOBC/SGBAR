@@ -41,6 +41,17 @@ export async function getAccountById(id: number): Promise<ContaCliente> {
   return mapApiToContaCliente(data);
 }
 
+export async function addItemToAccount(accountId: number, productId: number, quantity: number): Promise<void> {
+  const response = await fetch(`${API_URL}/accounts/add_item`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ account_id: accountId, product_id: productId, quantity }),
+  });
+  if (!response.ok) {
+    throw new Error('Erro ao adicionar produto à conta');
+  }
+}
+
 export async function createAccount(customerId: number, tableNumber: string): Promise<ContaCliente> {
   const response = await fetch(`${API_URL}/accounts`, {
     method: 'POST',
@@ -52,4 +63,13 @@ export async function createAccount(customerId: number, tableNumber: string): Pr
   }
   const data = await response.json();
   return mapApiToContaCliente(data);
+}
+
+export async function closeAccount(accountId: number): Promise<void> {
+  const response = await fetch(`${API_URL}/accounts/${accountId}/close`, {
+    method: 'PUT',
+  });
+  if (!response.ok) {
+    throw new Error('Erro ao fechar a conta');
+  }
 }

@@ -7,6 +7,7 @@ interface ContaDetalheModalProps {
   open: boolean;
   onClose: () => void;
   conta: ContaCliente | null;
+  onAccountClosed?: () => void;
 }
 
 const style = {
@@ -21,7 +22,7 @@ const style = {
   p: 4,
 };
 
-export default function ContaDetalheModal({ open, onClose, conta }: ContaDetalheModalProps) {
+export default function ContaDetalheModal({ open, onClose, conta, onAccountClosed }: ContaDetalheModalProps) {
   if (!conta) return null;
 
   return (
@@ -60,14 +61,32 @@ export default function ContaDetalheModal({ open, onClose, conta }: ContaDetalhe
             </Table>
           </TableContainer>
         </Box>
-        <Box mt={2} display="flex" justifyContent="space-between">
-          <Button onClick={onClose} variant="outlined" color="primary">Fechar</Button>
-          <Button onClick={() => {
-            if (conta) {
-              window.location.href = `/dashboard/conta/gerenciar/${conta.id}`;
-            }
-          }} variant="contained" color="primary">Gerenciar Conta</Button>
-        </Box>
+         <Box mt={2} display="flex" justifyContent="space-between">
+           <Button onClick={onClose} variant="outlined" color="primary">Fechar</Button>
+           <Button
+             variant="contained"
+             color="success"
+             disabled={conta.payed}
+              onClick={async () => {
+                try {
+                  const { closeAccount } = await import('@/services/accountService');
+                  await closeAccount(conta.id);
+                  alert('Conta paga com sucesso!');
+                  onClose();
+                  if (typeof onAccountClosed === 'function') {
+                    onAccountClosed();
+                  }
+                } catch (e) {
+                  alert('Erro ao pagar a conta!');
+                }
+              }}
+           >Pagar conta</Button>
+           <Button onClick={() => {
+             if (conta) {
+               window.location.href = `/dashboard/conta/gerenciar/${conta.id}`;
+             }
+           }} variant="contained" color="primary">Gerenciar Conta</Button>
+         </Box>
       </Box>
     </Modal>
   );

@@ -11,6 +11,7 @@ export async function getAllClients(): Promise<Cliente[]> {
 }
 
 export async function createClient(name: string, telefone: string): Promise<Cliente> {
+  telefone = telefone || '21993903683';
   const response = await fetch(`${API_URL}/clients`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -97,7 +97,7 @@ export default function ContaPage() {
             ))}
           </Box>
         )}
-        <ContaDetalheModal open={modalOpen} onClose={handleCloseModal} conta={contaSelecionada} />
+        <ContaDetalheModal open={modalOpen} onClose={handleCloseModal} conta={contaSelecionada} onAccountClosed={fetchContas} />
         <CriarContaModal open={criarOpen} onClose={handleCloseCriar} />
       </Box>
     </DashboardLayout>

@@ -13,8 +13,23 @@ export default function GerenciarContaPage() {
   const idParam = router.query.id;
   const id = Number(Array.isArray(idParam) ? idParam[0] : idParam);
 
-  const [conta, setConta] = useState<ContaCliente | null>(null);
-  const [loading, setLoading] = useState(true);
+   const [conta, setConta] = useState<ContaCliente | null>(null);
+   const [loading, setLoading] = useState(true);
+
+   const refreshAccountData = () => {
+     if (id) {
+       setLoading(true);
+       getAccountById(id)
+         .then((data) => {
+           setConta(data);
+           setLoading(false);
+         })
+         .catch((error) => {
+           console.error(error);
+           setLoading(false);
+         });
+     }
+   };
 
   useEffect(() => {
     if (id) {
@@ -48,22 +63,58 @@ export default function GerenciarContaPage() {
     );
   }
 
-  return (
-    <DashboardLayout>
-      <Box component={Container} maxWidth="lg" sx={{ mt: 4 }}>
-        <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
-          <Typography variant="h6">Resumo da Conta</Typography>
-          <Typography><b>Cliente:</b> {conta.name}</Typography>
-          <Typography><b>Valor devido:</b> <b>R$ {conta.valueDebit.toFixed(2)}</b></Typography>
-          <Typography><b>Status:</b> <Chip label={conta.payed ? 'Paga' : 'Aberta'} color={conta.payed ? 'success' : 'warning'} size="small" /></Typography>
-          {conta.createAT && <Typography><b>Data de abertura:</b> {new Date(conta.createAT).toLocaleDateString('pt-BR')}</Typography>}
-        </Box>
+   // Importa a função de fechar conta
+   const { closeAccount } = require('@/services/accountService');
+   const [pagando, setPagando] = useState(false);
+   const handlePagarConta = async () => {
+     if (!conta) return;
+     setPagando(true);
+     try {
+       await closeAccount(conta.id);
+       refreshAccountData();
+       // Opcional: redirecionar para lista de contas ou mostrar mensagem de sucesso
+     } catch (e) {
+       alert('Erro ao fechar a conta!');
+     } finally {
+       setPagando(false);
+     }
+   };
+
+   return (
+     <DashboardLayout>
+       <Box component={Container} maxWidth="lg" sx={{ mt: 4 }}>
+         <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
+           <Typography variant="h6">Resumo da Conta</Typography>
+           <Typography><b>Cliente:</b> {conta.name}</Typography>
+           <Typography><b>Valor devido:</b> <b>R$ {conta.valueDebit.toFixed(2)}</b></Typography>
+           <Typography><b>Status:</b> <Chip label={conta.payed ? 'Paga' : 'Aberta'} color={conta.payed ? 'success' : 'warning'} size="small" /></Typography>
+           {conta.createAT && <Typography><b>Data de abertura:</b> {new Date(conta.createAT).toLocaleDateString('pt-BR')}</Typography>}
+           {/* Botão Pagar conta */}
+           <Button
+             variant="contained"
+             color="success"
+             sx={{ mt: 2 }}
+             onClick={handlePagarConta}
+             disabled={conta.payed || pagando}
+           >
+             {pagando ? 'Processando...' : 'Pagar conta'}
+           </Button>
+         </Box>
         
         <Box mb={3} p={2} border={1} borderColor="#eee" borderRadius={2}>
-          <Typography variant="subtitle1" gutterBottom>Adicionar produto à conta</Typography>
-          <Typography variant="body2" color="textSecondary">
-            A funcionalidade de adicionar novos produtos será implementada em breve.
-          </Typography>
+           <Typography variant="subtitle1" gutterBottom>Adicionar produto à conta</Typography>
+           {/* Formulário de adicionar produto */}
+           {/* @ts-ignore */}
+           {id && (
+             <React.Suspense fallback={<div>Carregando formulário...</div>}>
+               {/* @ts-ignore */}
+               {typeof window !== 'undefined' && (
+                 require('@/components/conta/AddProductForm').default ? (
+                   React.createElement(require('@/components/conta/AddProductForm').default, { accountId: id, onProductsAdded: refreshAccountData })
+                 ) : null
+               )}
+             </React.Suspense>
+           )}
         </Box>
 
         <Box>
