@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Frontend (Next.js)
+
 First, run the development server:
 
 ```bash
@@ -16,9 +18,26 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Estrutura migrada para Pages Router (src/pages). Página inicial em `src/pages/index.tsx`.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+### Backend (Express)
+
+Boilerplate em `backend/`:
+- `server.ts` inicializa API em porta 4000 por padrão
+- Rota de saúde: `GET /api/health`
+- Logger: pino (pretty no modo dev)
+
+Rodar backend isolado:
+```bash
+node -r ts-node/register backend/server.ts
+```
+(Adicionar ts-node como dependência se desejar executar em TS direto.)
+
+Variáveis de ambiente (ver `.env.example`):
+- `NEXT_PUBLIC_API_BASE_URL` para chamadas no frontend
+- `BACKEND_PORT` (opcional) para alterar porta
 
 ## Learn More
 
