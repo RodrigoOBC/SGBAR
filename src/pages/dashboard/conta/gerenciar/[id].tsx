@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { closeAccount } from '@/services/accountService';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Box, Typography, Chip, TextField, Button, Autocomplete, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Container, CircularProgress } from '@mui/material';
@@ -8,7 +9,9 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import { getAccountById } from '@/services/accountService';
 import { ContaCliente, ItemDetalhe } from '@/types/Conta';
 
+
 export default function GerenciarContaPage() {
+  const [pagando, setPagando] = useState(false);
   const router = useRouter();
   const idParam = router.query.id;
   const id = Number(Array.isArray(idParam) ? idParam[0] : idParam);
@@ -63,9 +66,8 @@ export default function GerenciarContaPage() {
     );
   }
 
-   // Importa a função de fechar conta
-   const { closeAccount } = require('@/services/accountService');
-   const [pagando, setPagando] = useState(false);
+
+
    const handlePagarConta = async () => {
      if (!conta) return;
      setPagando(true);
