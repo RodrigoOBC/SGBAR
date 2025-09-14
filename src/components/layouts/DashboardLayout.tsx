@@ -20,9 +20,9 @@ import { useRouter } from 'next/router';
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: 'Estoque', icon: <InventoryIcon />, path: '/dashboard/estoque' },
-  { text: 'Conta', icon: <ReceiptLongIcon />, path: '/dashboard/conta' },
-  { text: 'Clientes', icon: <PeopleIcon />, path: '/dashboard/clientes' },
+  { text: 'Estoque', icon: <InventoryIcon />, path: '/dashboard/estoque', disable: false },
+  { text: 'Conta', icon: <ReceiptLongIcon />, path: '/dashboard/conta', disable: false},
+  { text: 'Clientes', icon: <PeopleIcon />, path: '/dashboard/clientes', disable: true },
 ];
 
 export default function DashboardLayout({
@@ -55,7 +55,7 @@ export default function DashboardLayout({
           <List>
             {menuItems.map((item) => (
               <ListItem key={item.text} disablePadding>
-                <ListItemButton onClick={() => router.push(item.path)}>
+                <ListItemButton onClick={() => router.push(item.path)} disabled={item.disable}>
                   <ListItemIcon>{item.icon}</ListItemIcon>
                   <ListItemText primary={item.text} />
                 </ListItemButton>
