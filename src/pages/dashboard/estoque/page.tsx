@@ -16,7 +16,7 @@ import {
   Alert
 } from '@mui/material';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
-import { getProducts, createProduct } from '@/services/productService';
+import { getProducts, createProduct, updateProduct } from '@/services/productService';
 import { Product } from '@/types/Product';
 
 export default function EstoquePage() {
